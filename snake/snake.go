@@ -4,11 +4,6 @@ type SnakePart struct {
 	X, Y int
 }
 
-type Treat struct {
-	SnakePart
-	Booked bool
-}
-
 type Action int
 
 const (
@@ -32,9 +27,13 @@ type Snake struct {
 	Previous         SnakePart
 	LastDirection    Action
 	CurrentDirection Action
+	GameOver         bool
+	Untouchable      int
+	Score            int
+	Ip               string
 }
 
-func NewSnake(startX, startY int) *Snake {
+func NewSnake(startX, startY int, ip string) *Snake {
 	s := &Snake{}
 	for i := 0; i < 3; i++ {
 		s.Body = append(s.Body, SnakePart{X: startX + i, Y: startY})
@@ -42,6 +41,8 @@ func NewSnake(startX, startY int) *Snake {
 	s.CurrentDirection = LEFT
 	s.LastDirection = LEFT
 	s.Previous = s.Body[len(s.Body)-1]
+	s.Untouchable = 3
+	s.Ip = ip
 	return s
 }
 
@@ -85,6 +86,6 @@ func (s *Snake) Grow() {
 	s.Body = append(s.Body, s.Previous)
 }
 
-func (s *Snake) Head() SnakePart {
-	return s.Body[0]
+func (s *Snake) Head() *SnakePart {
+	return &s.Body[0]
 }

@@ -86,6 +86,17 @@ func (g *SnakeGame) Step() {
 	}
 }
 
+func (g *SnakeGame) RemoveDeadSnakes() {
+	activeSnakes := []*snake.Snake{}
+	for _, user_snake := range g.Snakes {
+		if user_snake.GameOver {
+			continue
+		}
+		activeSnakes = append(activeSnakes, user_snake)
+	}
+	g.Snakes = activeSnakes
+}
+
 func checkCollision(user_snake *snake.Snake) bool {
 	head := user_snake.Head()
 
@@ -99,6 +110,11 @@ func checkCollision(user_snake *snake.Snake) bool {
 
 	for _, new_snake := range g.Snakes {
 		if new_snake == user_snake {
+			for _, block := range new_snake.Body[1:] {
+				if head.X == block.X && head.Y == block.Y {
+					return true
+				}
+			}
 			continue
 		}
 		for _, block := range new_snake.Body {
@@ -113,9 +129,10 @@ func checkCollision(user_snake *snake.Snake) bool {
 
 func checkLunch(user_snake *snake.Snake) {
 	head := user_snake.Head()
-	for _, treat := range g.Treats {
+	for i, treat := range g.Treats {
 		if head.X == treat.X && head.Y == treat.Y {
 			user_snake.Grow()
+			appearTreat(i)
 		}
 	}
 }

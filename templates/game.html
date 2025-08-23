@@ -54,6 +54,12 @@
             border-radius: 3px;
         }
 
+        .my-snake-head {
+            background-color: #2196F3;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
+        }
+
         .treat {
             background-color: #FF5722;
             border-radius: 50%;
@@ -118,6 +124,24 @@
             background: linear-gradient(45deg, #45a049, #5cb85c);
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .restart-button {
+            background: linear-gradient(45deg, #FF9800, #FFB74D);
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .restart-button:hover {
+            background: linear-gradient(45deg, #F57C00, #FF9800);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
         }
 
         .direction-buttons {
@@ -195,6 +219,7 @@
             <div class="control-section">
                 <h3>🎮 Game Controls</h3>
                 <button id="joinGame" class="play-button">🐍 Играть</button>
+                <button id="restartGame" class="restart-button" >🔄 Начать заново</button>
                 <div class="status" id="status">
                     <div>Нажмите "Играть" чтобы присоединиться к игре</div>
                 </div>
@@ -227,6 +252,8 @@
         let playerId = null;
         let gameRunning = false;
         let cells = [];
+        let playerAlive = true;
+        let lastPlayerScore = 0;
 
         // Initialize game board
         function initGameBoard() {
@@ -266,13 +293,22 @@
                 }
             });
             
+            // Check if current player's snake still exists
+            let playerSnakeFound = false;
+            
             // Draw snakes
             gameState.snakes.forEach((snake, snakeIndex) => {
                 snake.body.forEach((part, partIndex) => {
                     const index = getIndex(part.x, part.y);
                     if (index >= 0 && index < cells.length) {
                         if (partIndex === 0) {
-                            cells[index].className = 'cell snake-head';
+                            // Head of the snake - check if it's current player
+                            if (snakeIndex === playerId) {
+                                cells[index].className = 'cell my-snake-head';
+                                playerSnakeFound = true;
+                            } else {
+                                cells[index].className = 'cell snake-head';
+                            }
                         } else {
                             cells[index].className = 'cell snake';
                         }
@@ -282,11 +318,19 @@
                 // Update player info if this is the current player
                 if (snakeIndex === playerId) {
                     document.getElementById('yourScore').textContent = snake.score;
-                    if (snake.gameOver) {
-                        document.getElementById('status').innerHTML = '<div class="error">💀 Игра окончена! Ваша змейка погибла.</div>';
-                    }
+                    lastPlayerScore = snake.score;
+                    playerSnakeFound = true;
                 }
             });
+            
+            // Check if player died (snake disappeared from array)
+            if (playerId !== null && playerAlive && !playerSnakeFound && gameRunning) {
+                playerAlive = false;
+                document.getElementById('status').innerHTML = '<div class="error">💀 Игра окончена! Ваша змейка погибла.</div>';
+                document.getElementById('gameControls').style.display = 'none';
+                document.getElementById('restartGame').style.display = 'block';
+                document.getElementById('yourScore').textContent = lastPlayerScore;
+            }
             
             // Update game info
             document.getElementById('playerCount').textContent = gameState.snakes.length;
@@ -310,19 +354,22 @@
         // Join the game
         async function joinGame() {
             try {
-                const response = await fetch('http://localhost:8080/init', {
+                const response = await fetch('http://localhost:8080/new_snake', {
                     method: 'POST'
                 });
                 
                 if (response.ok) {
-                    const id = await response.text();
-                    playerId = parseInt(id.trim());
+                    const data = await response.json();
+                    playerId = data.id;
                     gameRunning = true;
+                    playerAlive = true;
+                    lastPlayerScore = 0;
                     
                     document.getElementById('status').innerHTML = 
                         `<div class="success">✅ Вы присоединились к игре! Ваш ID: <span class="player-id">${playerId}</span></div>`;
                     document.getElementById('gameControls').style.display = 'block';
                     document.getElementById('joinGame').disabled = true;
+                    document.getElementById('restartGame').style.display = 'none';
                     
                     // Start game loop
                     startGameLoop();
@@ -334,6 +381,42 @@
                 document.getElementById('status').innerHTML = 
                     '<div class="error">⚠️ Ошибка подключения к серверу</div>';
                 console.error('Error joining game:', error);
+            }
+        }
+
+        // Restart the game
+        async function restartGame() {
+            try {
+                const response = await fetch('http://localhost:8080/new_snake', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    playerId = data.id;
+                    gameRunning = true;
+                    playerAlive = true;
+                    lastPlayerScore = 0;
+                    
+                    // Reset UI
+                    document.getElementById('status').innerHTML = 
+                        `<div class="success">✅ Новая игра начата! Ваш ID: <span class="player-id">${playerId}</span></div>`;
+                    document.getElementById('gameControls').style.display = 'block';
+                    document.getElementById('restartGame').style.display = 'none';
+                    document.getElementById('yourScore').textContent = '0';
+                    
+                    // Restart game loop if needed
+                    if (!gameRunning) {
+                        startGameLoop();
+                    }
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        '<div class="error">❌ Не удалось начать новую игру</div>';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    '<div class="error">⚠️ Ошибка подключения к серверу</div>';
+                console.error('Error restarting game:', error);
             }
         }
 
@@ -385,6 +468,7 @@
 
         // Event listeners
         document.getElementById('joinGame').addEventListener('click', joinGame);
+        document.getElementById('restartGame').addEventListener('click', restartGame);
 
         // Initialize
         initGameBoard();

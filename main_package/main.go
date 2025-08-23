@@ -22,10 +22,13 @@ func play(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/game.html")
 }
 
-func init(w http.ResponseWriter, r *http.Request) {
+func new_snake(w http.ResponseWriter, r *http.Request) {
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
-	id := g.NewSnake(host)
-	return
+	playerID := g.NewSnake(host)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	json.NewEncoder(w).Encode(map[string]int{"id": playerID})
 }
 
 func getGameState(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +75,7 @@ func main() {
 	r.HandleFunc("/", homeHandler)
 	r.HandleFunc("/play", play)
 	r.HandleFunc("/state", getGameState)
+	r.HandleFunc("/new_snake", new_snake).Methods(http.MethodPost)
 	r.HandleFunc("/direction/{direction}/{id}", setDirection)
 
 	ticker := time.NewTicker(200 * time.Millisecond)
@@ -80,6 +84,7 @@ func main() {
 	go func() {
 		for range ticker.C {
 			g.Step()
+			g.RemoveDeadSnakes()
 		}
 	}()
 

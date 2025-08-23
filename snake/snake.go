@@ -61,17 +61,17 @@ func (s *Snake) SetDirection(action Action) error {
 func (s *Snake) releaseDirection() {
 	switch s.CurrentDirection {
 	case UP:
-		s.MoveX = -1
-		s.MoveY = 0
-	case DOWN:
-		s.MoveX = 1
-		s.MoveY = 0
-	case LEFT:
 		s.MoveX = 0
 		s.MoveY = -1
-	case RIGHT:
+	case DOWN:
 		s.MoveX = 0
 		s.MoveY = 1
+	case LEFT:
+		s.MoveX = -1
+		s.MoveY = 0
+	case RIGHT:
+		s.MoveX = 1
+		s.MoveY = 0
 	}
 }
 

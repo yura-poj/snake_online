@@ -297,13 +297,13 @@
             let playerSnakeFound = false;
             
             // Draw snakes
-            gameState.snakes.forEach((snake, snakeIndex) => {
+            gameState.snakes.forEach((snake) => {
                 snake.body.forEach((part, partIndex) => {
                     const index = getIndex(part.x, part.y);
                     if (index >= 0 && index < cells.length) {
                         if (partIndex === 0) {
                             // Head of the snake - check if it's current player
-                            if (snakeIndex === playerId) {
+                            if (snake.id === playerId) {
                                 cells[index].className = 'cell my-snake-head';
                                 playerSnakeFound = true;
                             } else {
@@ -316,10 +316,9 @@
                 });
                 
                 // Update player info if this is the current player
-                if (snakeIndex === playerId) {
+                if (snake.id === playerId) {
                     document.getElementById('yourScore').textContent = snake.score;
                     lastPlayerScore = snake.score;
-                    playerSnakeFound = true;
                 }
             });
             
@@ -341,7 +340,7 @@
         // Fetch game state from server
         async function fetchGameState() {
             try {
-                const response = await fetch('http://localhost:80/state');
+                const response = await fetch('/state');
                 if (response.ok) {
                     const gameState = await response.json();
                     updateBoard(gameState);
@@ -354,7 +353,7 @@
         // Join the game
         async function joinGame() {
             try {
-                const response = await fetch('http://localhost:80/new_snake', {
+                const response = await fetch('/new_snake', {
                     method: 'POST'
                 });
                 
@@ -387,7 +386,7 @@
         // Restart the game
         async function restartGame() {
             try {
-                const response = await fetch('http://localhost:80/new_snake', {
+                const response = await fetch('/new_snake', {
                     method: 'POST'
                 });
                 
@@ -425,7 +424,7 @@
             if (playerId === null) return;
             
             try {
-                const response = await fetch(`http://localhost:80/direction/${direction}/${playerId}`, {
+                const response = await fetch(`/direction/${direction}/${playerId}`, {
                     method: 'PUT'
                 });
                 

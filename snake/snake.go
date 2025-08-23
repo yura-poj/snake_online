@@ -16,6 +16,8 @@ const (
 	RIGHT
 )
 
+var id = 0
+
 func (a Action) opposite() Action {
 	if a%2 == 0 {
 		return a + 1
@@ -34,6 +36,7 @@ type Snake struct {
 	Untouchable      int         `json:"-"`
 	Score            int         `json:"score"`
 	Ip               string      `json:"ip"`
+	Id               int         `json:"id"`
 }
 
 func NewSnake(startX, startY int, ip string) *Snake {
@@ -46,6 +49,8 @@ func NewSnake(startX, startY int, ip string) *Snake {
 	s.Previous = s.Body[len(s.Body)-1]
 	s.Untouchable = 3
 	s.Ip = ip
+	s.Id = id
+	id += 1
 	return s
 }
 

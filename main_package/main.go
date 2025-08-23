@@ -43,7 +43,7 @@ func setDirection(w http.ResponseWriter, r *http.Request) {
 	direction := vars["direction"]
 	idStr := vars["id"]
 	id, err := strconv.Atoi(idStr)
-	if err != nil || id < 0 || id >= len(g.Snakes) {
+	if err != nil {
 		http.Error(w, "invalid snake id", http.StatusBadRequest)
 		return
 	}
@@ -61,12 +61,25 @@ func setDirection(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid direction", http.StatusBadRequest)
 		return
 	}
-	err = g.Snakes[id].SetDirection(dir)
+	s := findSnake(id)
+	if s == nil {
+		http.Error(w, "invalid snake id", http.StatusBadRequest)
+	}
+	err = s.SetDirection(dir)
 	if err != nil {
 		fmt.Fprintln(w, "Unsuccess, cant't move opposite way")
 	} else {
 		fmt.Fprintln(w, "Success")
 	}
+}
+
+func findSnake(id int) *snake.Snake {
+	for _, user_snake := range g.Snakes {
+		if user_snake.Id == id {
+			return user_snake
+		}
+	}
+	return nil
 }
 
 func main() {

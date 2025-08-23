@@ -38,7 +38,7 @@ func Init(width, height, numberFood int) *SnakeGame {
 func (g *SnakeGame) NewSnake(ip string) int {
 	s := snake.NewSnake(0, 0, ip)
 	g.Snakes = append(g.Snakes, s)
-	return len(g.Snakes) - 1
+	return s.Id
 }
 
 func appearTreat(index int) {

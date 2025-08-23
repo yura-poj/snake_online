@@ -7,16 +7,18 @@ import (
 )
 
 type Treat struct {
-	X, Y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type SnakeGame struct {
-	Treats []Treat
-	Snakes []*snake.Snake
+	Treats []Treat        `json:"treats"`
+	Snakes []*snake.Snake `json:"snakes"`
 
-	Width, Height int
-	Best          int
-	NumberFood    int
+	Width      int `json:"width"`
+	Height     int `json:"height"`
+	BestScore  int `json:"bestScore"`
+	NumberFood int `json:"-"`
 }
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -31,6 +33,12 @@ func Init(width, height, numberFood int) *SnakeGame {
 	}
 
 	return &g
+}
+
+func (g *SnakeGame) NewSnake(ip string) int {
+	s := snake.NewSnake(0, 0, ip)
+	g.Snakes = append(g.Snakes, s)
+	return len(g.Snakes) - 1
 }
 
 func appearTreat(index int) {
@@ -62,11 +70,58 @@ func blockEmpty(x, y int) bool {
 	return true
 }
 
-func NewSnake(ip string) {
-	s := snake.NewSnake(0, 0, ip)
-	g.Snakes = append(g.Snakes, s)
+func (g *SnakeGame) Step() {
+	for _, user_snake := range g.Snakes {
+		user_snake.Move()
+		checkCollision(user_snake)
+		checkLunch(user_snake)
+		user_snake.Untouchable -= 1
+
+		if checkCollision(user_snake) {
+			user_snake.GameOver = true
+		}
+
+		checkLunch(user_snake)
+		checkBestScore(user_snake)
+	}
 }
 
-func move() {
-	
+func checkCollision(user_snake *snake.Snake) bool {
+	head := user_snake.Head()
+
+	if head.X > g.Width || head.Y > g.Height || head.X < 0 || head.Y < 0 {
+		return true
+	}
+
+	if user_snake.Untouchable >= 0 {
+		return false
+	}
+
+	for _, new_snake := range g.Snakes {
+		if new_snake == user_snake {
+			continue
+		}
+		for _, block := range new_snake.Body {
+			if head.X == block.X && head.Y == block.Y {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func checkLunch(user_snake *snake.Snake) {
+	head := user_snake.Head()
+	for _, treat := range g.Treats {
+		if head.X == treat.X && head.Y == treat.Y {
+			user_snake.Grow()
+		}
+	}
+}
+
+func checkBestScore(user_snake *snake.Snake) {
+	if g.BestScore < user_snake.Score {
+		g.BestScore = user_snake.Score
+	}
 }

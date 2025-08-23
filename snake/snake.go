@@ -1,7 +1,10 @@
 package snake
 
+import "errors"
+
 type SnakePart struct {
-	X, Y int
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type Action int
@@ -13,7 +16,7 @@ const (
 	RIGHT
 )
 
-func (a Action) Opposite() Action {
+func (a Action) opposite() Action {
 	if a%2 == 0 {
 		return a + 1
 	} else {
@@ -22,15 +25,15 @@ func (a Action) Opposite() Action {
 }
 
 type Snake struct {
-	Body             []SnakePart
-	MoveX, MoveY     int
-	Previous         SnakePart
-	LastDirection    Action
-	CurrentDirection Action
-	GameOver         bool
-	Untouchable      int
-	Score            int
-	Ip               string
+	Body             []SnakePart `json:"body"`
+	MoveX, MoveY     int         `json:"-"`
+	Previous         SnakePart   `json:"-"`
+	LastDirection    Action      `json:"-"`
+	CurrentDirection Action      `json:"-"`
+	GameOver         bool        `json:"gameOver"`
+	Untouchable      int         `json:"-"`
+	Score            int         `json:"score"`
+	Ip               string      `json:"ip"`
 }
 
 func NewSnake(startX, startY int, ip string) *Snake {
@@ -38,21 +41,24 @@ func NewSnake(startX, startY int, ip string) *Snake {
 	for i := 0; i < 3; i++ {
 		s.Body = append(s.Body, SnakePart{X: startX + i, Y: startY})
 	}
-	s.CurrentDirection = LEFT
-	s.LastDirection = LEFT
+	s.CurrentDirection = RIGHT
+	s.LastDirection = RIGHT
 	s.Previous = s.Body[len(s.Body)-1]
 	s.Untouchable = 3
 	s.Ip = ip
 	return s
 }
 
-func (s *Snake) SetDirection(action Action) {
-	if action != s.LastDirection.Opposite() {
+func (s *Snake) SetDirection(action Action) error {
+	if action != s.LastDirection.opposite() {
 		s.CurrentDirection = action
+		return nil
 	}
+
+	return errors.New("cannot reverse direction")
 }
 
-func (s *Snake) ReleaseDirection() {
+func (s *Snake) releaseDirection() {
 	switch s.CurrentDirection {
 	case UP:
 		s.MoveX = -1
@@ -70,7 +76,7 @@ func (s *Snake) ReleaseDirection() {
 }
 
 func (s *Snake) Move() {
-	s.ReleaseDirection()
+	s.releaseDirection()
 	s.LastDirection = s.CurrentDirection
 	s.Previous = s.Body[len(s.Body)-1]
 
@@ -84,6 +90,7 @@ func (s *Snake) Move() {
 
 func (s *Snake) Grow() {
 	s.Body = append(s.Body, s.Previous)
+	s.Score += 1
 }
 
 func (s *Snake) Head() *SnakePart {

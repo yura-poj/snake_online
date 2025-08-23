@@ -341,7 +341,7 @@
         // Fetch game state from server
         async function fetchGameState() {
             try {
-                const response = await fetch('http://localhost:8080/state');
+                const response = await fetch('http://localhost:80/state');
                 if (response.ok) {
                     const gameState = await response.json();
                     updateBoard(gameState);
@@ -354,7 +354,7 @@
         // Join the game
         async function joinGame() {
             try {
-                const response = await fetch('http://localhost:8080/new_snake', {
+                const response = await fetch('http://localhost:80/new_snake', {
                     method: 'POST'
                 });
                 
@@ -387,7 +387,7 @@
         // Restart the game
         async function restartGame() {
             try {
-                const response = await fetch('http://localhost:8080/new_snake', {
+                const response = await fetch('http://localhost:80/new_snake', {
                     method: 'POST'
                 });
                 
@@ -425,7 +425,7 @@
             if (playerId === null) return;
             
             try {
-                const response = await fetch(`http://localhost:8080/direction/${direction}/${playerId}`, {
+                const response = await fetch(`http://localhost:80/direction/${direction}/${playerId}`, {
                     method: 'PUT'
                 });
                 

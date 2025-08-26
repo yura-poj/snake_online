@@ -55,6 +55,7 @@ func NewSnake(startX, startY int, ip string) *Snake {
 }
 
 func (s *Snake) SetDirection(action Action) error {
+
 	if action != s.LastDirection.opposite() {
 		s.CurrentDirection = action
 		return nil

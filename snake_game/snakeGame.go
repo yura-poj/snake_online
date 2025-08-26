@@ -100,12 +100,12 @@ func (g *SnakeGame) RemoveDeadSnakes() {
 func checkCollision(user_snake *snake.Snake) bool {
 	head := user_snake.Head()
 
-	if head.X > g.Width || head.Y > g.Height || head.X < 0 || head.Y < 0 {
-		return true
-	}
-
 	if user_snake.Untouchable >= 0 {
 		return false
+	}
+
+	if head.X > g.Width || head.Y > g.Height || head.X < 0 || head.Y < 0 {
+		return true
 	}
 
 	for _, new_snake := range g.Snakes {

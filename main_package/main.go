@@ -64,12 +64,13 @@ func setDirection(w http.ResponseWriter, r *http.Request) {
 	s := findSnake(id)
 	if s == nil {
 		http.Error(w, "invalid snake id", http.StatusBadRequest)
-	}
-	err = s.SetDirection(dir)
-	if err != nil {
-		fmt.Fprintln(w, "Unsuccess, cant't move opposite way")
 	} else {
-		fmt.Fprintln(w, "Success")
+		err = s.SetDirection(dir)
+		if err != nil {
+			fmt.Fprintln(w, "Unsuccess, cant't move opposite way")
+		} else {
+			fmt.Fprintln(w, "Success")
+		}
 	}
 }
 

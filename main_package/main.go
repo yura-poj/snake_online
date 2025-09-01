@@ -24,6 +24,10 @@ func play(w http.ResponseWriter, r *http.Request) {
 
 func new_snake(w http.ResponseWriter, r *http.Request) {
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
+	if findSnakeIp(host) != nil {
+		http.Error(w, "Snake has already been created", http.StatusForbidden)
+		return
+	}
 	playerID := g.NewSnake(host)
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -77,6 +81,15 @@ func setDirection(w http.ResponseWriter, r *http.Request) {
 func findSnake(id int) *snake.Snake {
 	for _, user_snake := range g.Snakes {
 		if user_snake.Id == id {
+			return user_snake
+		}
+	}
+	return nil
+}
+
+func findSnakeIp(ip string) *snake.Snake {
+	for _, user_snake := range g.Snakes {
+		if user_snake.Ip == ip {
 			return user_snake
 		}
 	}

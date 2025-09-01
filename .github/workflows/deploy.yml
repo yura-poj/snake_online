@@ -23,4 +23,4 @@ jobs:
 
       - name: Deploy Code
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'cd ~/snake_online && git pull && docker compose up -d'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'cd ~/snake_online && git pull && docker compose up -d --build'

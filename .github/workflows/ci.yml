@@ -1,10 +1,9 @@
 name: snake_online
 
 on:
-  push:
-    branches: [ $default-branch ]
   pull_request:
-    branches: [ $default-branch ]
+  push:
+    branches: [ main ]
 
 jobs:
 

@@ -104,6 +104,8 @@ func main() {
 	r.HandleFunc("/state", getGameState)
 	r.HandleFunc("/new_snake", new_snake).Methods(http.MethodPost)
 	r.HandleFunc("/direction/{direction}/{id}", setDirection)
+	fs := http.FileServer(http.Dir("./"))
+	r.PathPrefix("/files/").Handler(http.StripPrefix("/files/", fs))
 
 	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()

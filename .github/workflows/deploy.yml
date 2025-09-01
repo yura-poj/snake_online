@@ -22,4 +22,4 @@ jobs:
 
       - name: Deploy Code
         run: |
-          ssh user@your-server 'cd ./snake_online && git pull && docker compose up'
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'cd ~/snake_online && git pull && docker compose up -d'

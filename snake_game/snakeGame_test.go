@@ -1,6 +1,7 @@
 package snake_game
 
 import (
+	"fmt"
 	"snake_online/snake"
 	"testing"
 )
@@ -58,20 +59,28 @@ func TestBlockEmpty(t *testing.T) {
 		t.Error("Expected treat position to not be empty")
 	}
 
-	emptyFound := false
+	cont := false
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
-			if blockEmpty(x, y) {
-				emptyFound = true
-				break
+			if !blockEmpty(x, y) {
+				fmt.Println(x, y)
+
+				if x == game.Treats[0].X && y == game.Treats[0].Y {
+					continue
+				}
+				cont = false
+
+				for _, part := range game.Snakes[0].Body {
+					if x == part.X && y == part.Y {
+						cont = true
+					}
+				}
+				if cont {
+					continue
+				}
+				t.Error("Expected not to find at one not empty position on the field except one treat and snake")
 			}
 		}
-		if emptyFound {
-			break
-		}
-	}
-	if !emptyFound {
-		t.Error("Expected to find at least one empty position on the field")
 	}
 }
 

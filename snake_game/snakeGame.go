@@ -27,6 +27,9 @@ var g = SnakeGame{}
 func Init(width, height, numberFood int) *SnakeGame {
 	g.Width, g.Height = width, height
 	g.NumberFood = numberFood
+	g.Treats = nil
+	g.Snakes = nil
+	g.BestScore = 0
 	for i := 0; i < numberFood; i++ {
 		g.Treats = append(g.Treats, Treat{X: 0, Y: 0})
 		appearTreat(i)

@@ -1,7 +1,6 @@
 package snake_game
 
 import (
-	"fmt"
 	"snake_online/snake"
 	"testing"
 )
@@ -63,8 +62,6 @@ func TestBlockEmpty(t *testing.T) {
 	for x := 0; x < 20; x++ {
 		for y := 0; y < 20; y++ {
 			if !blockEmpty(x, y) {
-				fmt.Println(x, y)
-
 				if x == game.Treats[0].X && y == game.Treats[0].Y {
 					continue
 				}
@@ -85,46 +82,34 @@ func TestBlockEmpty(t *testing.T) {
 }
 
 func TestCheckCollisionBoundaries(t *testing.T) {
+	tests := []struct {
+		name        string
+		headX       int
+		headY       int
+		untouchable int
+		want        bool
+	}{
+		{name: "collision with left boundary", headX: -1, headY: 5, untouchable: -1, want: true},
+		{name: "collision with right boundary", headX: 21, headY: 5, untouchable: -1, want: true},
+		{name: "collision with top boundary", headX: 5, headY: 21, untouchable: -1, want: true},
+		{name: "collision with bottom boundary", headX: 5, headY: -1, untouchable: -1, want: true},
+		{name: "no collision with boundaries", headX: 5, headY: 5, untouchable: -1, want: false},
+	}
 	game := Init(20, 20, 1)
 	testSnake := snake.NewSnake(0, 0, "192.168.1.1")
 	game.Snakes = []*snake.Snake{testSnake}
 
-	testSnake.Untouchable = -1
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testSnake.Head().X = tt.headX
+			testSnake.Head().Y = tt.headY
+			testSnake.Untouchable = tt.untouchable
+			got := checkCollision(testSnake)
 
-	testSnake.Body[0].X = -1
-	testSnake.Body[0].Y = 5
-	if !checkCollision(testSnake) {
-		t.Error("Expected collision with left boundary")
-	}
-
-	testSnake.Body[0].X = -1
-	testSnake.Body[0].Y = 5
-	if !checkCollision(testSnake) {
-		t.Error("Expected collision with left boundary")
-	}
-
-	testSnake.Body[0].X = 21
-	testSnake.Body[0].Y = 5
-	if !checkCollision(testSnake) {
-		t.Error("Expected collision with right boundary")
-	}
-
-	testSnake.Body[0].X = 5
-	testSnake.Body[0].Y = -1
-	if !checkCollision(testSnake) {
-		t.Error("Expected collision with top boundary")
-	}
-
-	testSnake.Body[0].X = 5
-	testSnake.Body[0].Y = 21
-	if !checkCollision(testSnake) {
-		t.Error("Expected collision with bottom boundary")
-	}
-
-	testSnake.Body[0].X = 10
-	testSnake.Body[0].Y = 10
-	if checkCollision(testSnake) {
-		t.Error("Expected no collision within boundaries")
+			if got != tt.want {
+				t.Errorf("CheckCollisionBoundaries() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 

@@ -30,8 +30,7 @@ go run main_package/main.go
 ### Docker
 
 ```bash
-docker build -t snake-online .
-docker run -p 80:80 snake-online
+docker compose up --build
 ```
 
 ## 🎮 Как играть

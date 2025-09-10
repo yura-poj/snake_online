@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"net"
 	"net/http"
+	"os"
 	"snake_online/snake"
 	"snake_online/snake_game"
 	"strconv"
@@ -20,6 +22,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func play(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/game.html")
+
 }
 
 func new_snake(w http.ResponseWriter, r *http.Request) {
@@ -71,9 +74,7 @@ func setDirection(w http.ResponseWriter, r *http.Request) {
 	} else {
 		err = s.SetDirection(dir)
 		if err != nil {
-			fmt.Fprintln(w, "Unsuccess, cant't move opposite way")
-		} else {
-			fmt.Fprintln(w, "Success")
+			zap.L().Error("Error setting snake direction", zap.Error(err))
 		}
 	}
 }
@@ -97,8 +98,34 @@ func findSnakeIp(ip string) *snake.Snake {
 }
 
 func main() {
+	file, err := os.OpenFile("snake.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	addLogger(file)
+
 	g = snake_game.Init(20, 20, 3)
 	r := mux.NewRouter()
+	defer zap.L().Sync()
+	defer func() {
+		if r := recover(); r != nil {
+			zap.L().Panic("Panic recovered", zap.Any("panic", r))
+		}
+	}()
+
+	addHandlers(r)
+	ticker := time.NewTicker(200 * time.Millisecond)
+	defer ticker.Stop()
+	go gameplay(ticker)
+
+	zap.L().Info("Server start listening")
+	http.ListenAndServe(":80", r)
+}
+
+func addHandlers(r *mux.Router) {
 	r.HandleFunc("/", homeHandler)
 	r.HandleFunc("/play", play)
 	r.HandleFunc("/state", getGameState)
@@ -107,15 +134,28 @@ func main() {
 	fs := http.FileServer(http.Dir("./"))
 	r.PathPrefix("/files/").Handler(http.StripPrefix("/files/", fs))
 
-	ticker := time.NewTicker(200 * time.Millisecond)
-	defer ticker.Stop()
+}
 
-	go func() {
-		for range ticker.C {
-			g.Step()
-			g.RemoveDeadSnakes()
-		}
-	}()
+func gameplay(ticker *time.Ticker) {
+	for range ticker.C {
+		g.Step()
+		g.RemoveDeadSnakes()
+	}
+}
 
-	http.ListenAndServe(":80", r)
+func addLogger(file *os.File) {
+	fileWriteSyncer := zapcore.AddSync(file)
+	consoleWriteSyncer := zapcore.AddSync(os.Stdout)
+
+	encoderCfg := zap.NewProductionEncoderConfig()
+	encoderCfg.TimeKey = "time"
+	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(zapcore.NewJSONEncoder(encoderCfg), fileWriteSyncer, zapcore.InfoLevel),
+		zapcore.NewCore(zapcore.NewConsoleEncoder(encoderCfg), consoleWriteSyncer, zapcore.InfoLevel),
+	)
+
+	logger := zap.New(core, zap.AddCaller())
+	zap.ReplaceGlobals(logger)
 }

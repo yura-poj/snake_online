@@ -1,6 +1,8 @@
 package snake
 
-import "errors"
+import (
+	"errors"
+)
 
 type SnakePart struct {
 	X int `json:"x"`

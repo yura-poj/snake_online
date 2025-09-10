@@ -1,6 +1,7 @@
 package snake_game
 
 import (
+	"go.uber.org/zap"
 	"math/rand"
 	"snake_online/snake"
 	"time"
@@ -34,7 +35,7 @@ func Init(width, height, numberFood int) *SnakeGame {
 		g.Treats = append(g.Treats, Treat{X: 0, Y: 0})
 		appearTreat(i)
 	}
-
+	zap.L().Info("Game server created")
 	return &g
 }
 

@@ -1,0 +1,27 @@
+2025/09/08 12:00:50 main.go:148: start logging
+2025/09/08 12:03:58 main.go:147: start logging
+2025/09/08 12:03:58 main.go:115: Server start listening
+2025/09/08 12:05:18 main.go:142: start logging
+2025/09/08 12:05:18 main.go:110: Server start listening
+2025/09/08 12:05:37 main.go:74: <nil>
+2025/09/08 12:05:37 main.go:74: <nil>
+2025/09/08 12:07:41 main.go:144: start logging
+2025/09/08 12:07:41 main.go:112: Server start listening
+2025/09/08 12:09:25 main.go:140: start logging
+2025/09/08 12:09:25 main.go:114: Server start listening
+2025/09/08 12:10:34 main.go:141: start logging
+2025/09/08 12:10:34 main.go:114: Server start listening
+2025/09/08 12:10:44 main.go:140: start logging
+2025/09/08 12:16:42 main.go:147: start logging
+2025/09/08 12:16:42 main.go:120: Server start listening
+2025/09/08 12:16:42 main.go:111: a
+2025/09/08 12:17:01 main.go:149: start logging
+2025/09/08 12:17:01 main.go:123: Server start listening
+2025/09/08 12:18:29 main.go:147: start logging
+2025/09/08 12:18:29 main.go:121: Server start listening
+2025-09-10T15:03:25.510+0700	info	main_package/main.go:124	Server start listening
+{"level":"info","time":"2025-09-10T15:07:50.451+0700","caller":"main_package/main.go:123","msg":"Server start listening"}
+{"level":"info","time":"2025-09-10T15:10:42.535+0700","caller":"snake_game/snakeGame.go:38","msg":"Game server created"}
+{"level":"info","time":"2025-09-10T15:10:42.536+0700","caller":"main_package/main.go:124","msg":"Server start listening"}
+{"level":"info","time":"2025-09-10T15:11:19.805+0700","caller":"snake_game/snakeGame.go:38","msg":"Game server created"}
+{"level":"info","time":"2025-09-10T15:11:19.806+0700","caller":"main_package/main.go:124","msg":"Server start listening"}

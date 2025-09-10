@@ -6,3 +6,5 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+    volumes:
+      - ./logs:/app/logs

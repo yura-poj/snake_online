@@ -7,7 +7,11 @@ import (
 )
 
 func addLogger() (*os.File, *zap.Logger) {
-	file, err := os.OpenFile("snake.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err := os.MkdirAll("logs", os.ModePerm); err != nil {
+		panic(err)
+	}
+	
+	file, err := os.OpenFile("logs/snake.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 
 	if err != nil {
 		panic(err)
